@@ -84,7 +84,7 @@ class Fishing:
         pass
 
 class Fishing_sim:
-    def __init__(self, bar_range=(0.14, 0.4), move_range=(30,60*2), resize_freq_range=(15,60*5),
+    def __init__(self, bar_range=(0.18, 0.4), move_range=(30,60*2), resize_freq_range=(15,60*5),
                  move_speed_range=(-0.3,0.3), tick_count=60, step_tick=15, stop_tick=60*15,
                  drag_force=0.4, down_speed=0.015, stable_speed=-0.32, drawer=None):
         self.bar_range=bar_range
@@ -141,7 +141,7 @@ class Fishing_sim:
         else:
             self.score-=1
 
-        if self.ticks>self.stop_tick or self.score<=-10000:
+        if self.ticks>self.stop_tick or self.score<=-100000:
             return True
 
         self.pointer+=self.v
@@ -167,7 +167,7 @@ class Fishing_sim:
         for x in range(self.step_tick):
             if self.tick():
                 done=True
-        return (self.low,self.low+self.len,self.pointer), (self.score-score_before)/self.step_tick, done
+        return self.get_state(), (self.score-score_before)/self.step_tick, done
 
     def render(self):
         if self.drawer:

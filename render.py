@@ -20,7 +20,8 @@ class PltRender:
         plt.imshow(img)
         plt.title(f'tick:{ticks}')
         #plt.draw()
-        self.call_back()
+        if self.call_back:
+            self.call_back()
         plt.pause(0.0001)
         plt.clf()
 
