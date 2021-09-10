@@ -5,6 +5,7 @@ import torch
 import argparse
 import os
 import keyboard
+import winsound
 
 parser = argparse.ArgumentParser(description='Train Genshin finsing with DQN')
 parser.add_argument('--batch_size', default=32, type=int)
@@ -13,7 +14,7 @@ parser.add_argument('--n_actions', default=2, type=int)
 parser.add_argument('--step_tick', default=12, type=int)
 parser.add_argument('--n_episode', default=400, type=int)
 parser.add_argument('--save_dir', default='./output', type=str)
-parser.add_argument('--resume', default='./output/fish_net_399.pth', type=str)
+parser.add_argument('--resume', default='./output/fish_sim_net_399.pth', type=str)
 args = parser.parse_args()
 
 if not os.path.exists(args.save_dir):
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     print("\nCollecting experience...")
     net.train()
     for i_episode in range(args.n_episode):
+        winsound.Beep(500, 500)
         keyboard.wait('r')
         # play 400 episodes of cartpole game
         s = env.reset()

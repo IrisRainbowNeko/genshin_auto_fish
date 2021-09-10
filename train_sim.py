@@ -59,4 +59,4 @@ if __name__ == '__main__':
                 break
             # use next state to update the current state.
             s = s_
-    torch.save(net.state_dict(), os.path.join(args.save_dir, f'fish_ys_net_{i_episode}.pth'))
+    torch.save(net.state_dict(), os.path.join(args.save_dir, f'fish_sim_net_{i_episode}.pth'))
