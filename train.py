@@ -24,7 +24,7 @@ net = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
 if args.resume:
     net.load_state_dict(torch.load(args.resume))
 
-agent = DQN(net, args.batch_size, args.n_states, args.n_actions, memory_capacity=2000)
+agent = DQN(net, args.batch_size, args.n_states, args.n_actions, memory_capacity=1000)
 #env = Fishing_sim(step_tick=args.step_tick)
 env = Fishing(delay=0.1, max_step=150)
 

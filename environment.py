@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+from utils import *
 import cv2
 from pymouse import *
 import pyautogui
@@ -7,7 +7,7 @@ import time
 from copy import deepcopy
 
 class Fishing:
-    def __init__(self, delay=0.1, max_step=100):
+    def __init__(self, delay=0.1, max_step=100, show_det=True):
         self.mosue = PyMouse()
         self.t_l = cv2.imread('imgs/target_left.png')
         self.t_r = cv2.imread('imgs/target_right.png')
@@ -17,20 +17,20 @@ class Fishing:
         self.delay=delay
         self.max_step=max_step
         self.count=0
+        self.show_det=show_det
+
+        self.add_vec=[0,2,0,2,0,2]
 
     def reset(self):
+        self.img=cap([712 - 10, 94, 496 + 20, 103])
+
+        self.fish_start=False
+        self.zero_count=0
         self.step_count=0
-        self.last_score=0
+        self.reward=0
+        self.last_score=self.get_score()
 
-        img = pyautogui.screenshot(region=[712-10, 94, 496+20, 103])
-        self.img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
         return self.get_state()
-
-    def match_img(self, img, target):
-        h, w = target.shape[:2]
-        res = cv2.matchTemplate(img, target, cv2.TM_CCOEFF)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-        return (*max_loc, max_loc[0] + w, max_loc[1] + h, max_loc[0] + w // 2, max_loc[1] + h // 2)
 
     def drag(self):
         self.mosue.click(1630,995)
@@ -43,42 +43,61 @@ class Fishing:
         return (x-5-10)/484
 
     def get_state(self):
-        bbox_l = self.match_img(self.img, self.t_l)
-        bbox_r = self.match_img(self.img, self.t_r)
-        bbox_n = self.match_img(self.img, self.t_n)
+        bar_img=self.img[2:34,:,:]
+        bbox_l = match_img(bar_img, self.t_l)
+        bbox_r = match_img(bar_img, self.t_r)
+        bbox_n = match_img(bar_img, self.t_n)
 
-        img=deepcopy(self.img)
-        cv2.rectangle(img, bbox_l[0:2], bbox_l[2:4], (255, 0, 0), 2)  # 画出矩形位置
-        cv2.rectangle(img, bbox_r[0:2], bbox_r[2:4], (0, 255, 0), 2)  # 画出矩形位置
-        cv2.rectangle(img, bbox_n[0:2], bbox_n[2:4], (0, 0, 255), 2)  # 画出矩形位置
-        cv2.imwrite(f'./img_tmp/{self.count}.jpg',img)
+        bbox_l = tuple(list_add(bbox_l, self.add_vec))
+        bbox_r = tuple(list_add(bbox_r, self.add_vec))
+        bbox_n = tuple(list_add(bbox_n, self.add_vec))
+
+        if self.show_det:
+            img=deepcopy(self.img)
+            cv2.rectangle(img, bbox_l[:2], bbox_l[2:4], (255, 0, 0), 1)  # 画出矩形位置
+            cv2.rectangle(img, bbox_r[:2], bbox_r[2:4], (0, 255, 0), 1)  # 画出矩形位置
+            cv2.rectangle(img, bbox_n[:2], bbox_n[2:4], (0, 0, 255), 1)  # 画出矩形位置
+            fontFace = cv2.FONT_HERSHEY_COMPLEX_SMALL
+            fontScale = 1
+            thickness = 1
+            cv2.putText(img, str(self.last_score), (257+30, 72), fontScale=fontScale,fontFace=fontFace, thickness=thickness, color=(0,255,255))
+            cv2.putText(img, str(self.reward), (257+30, 87), fontScale=fontScale,fontFace=fontFace, thickness=thickness, color=(255,255,0))
+            cv2.imwrite(f'./img_tmp/{self.count}.jpg',img)
         self.count+=1
+
+        #voc dataset
+        '''cv2.imwrite(f'./bar_dataset/{self.count}.jpg', self.img)
+        with open(f'./bar_dataset/{self.count}.xml', 'w', encoding='utf-8') as f:
+            f.write(self.voc_tmp.format(self.count, *bbox_l[:4], *bbox_r[:4], *bbox_n[:4]))'''
 
         return self.scale(bbox_l[4]),self.scale(bbox_r[4]),self.scale(bbox_n[4])
 
-    def check_done(self):
+    def get_score(self):
         cx,cy=247+10,72
-        for x in range(2,360):
+        for x in range(4,360,2):
             px=int(cx+self.r_ring*np.sin(np.deg2rad(x)))
-            py=int(cy+self.r_ring*np.cos(np.deg2rad(x)))
-            if np.mean(np.abs(self.img[py,px,:]-self.std_color))>3:
-                return x
-        return 360
+            py=int(cy-self.r_ring*np.cos(np.deg2rad(x)))
+            if np.mean(np.abs(self.img[py,px,:]-self.std_color))>5:
+                return x//2-2
+        return 360//2-2
 
     def step(self, action):
         self.do_action(action)
 
         time.sleep(self.delay-0.05)
-        img = pyautogui.screenshot(region=[712-10, 94, 496+20, 103])
-        self.img = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+        self.img=cap([712 - 10, 94, 496 + 20, 103])
         self.step_count+=1
 
-        score=self.check_done()
-        #print(score)
-        reward=score-self.last_score
+        score=self.get_score()
+        if score>0:
+            self.fish_start=True
+            self.zero_count=0
+        else:
+            self.zero_count+=1
+        self.reward=score-self.last_score
         self.last_score=score
 
-        return self.get_state(), reward, (self.step_count>self.max_step or score>350)
+        return self.get_state(), self.reward, (self.step_count>self.max_step or (self.zero_count>=15 and self.fish_start) or score>177)
 
     def render(self):
         pass
