@@ -1,3 +1,5 @@
+import time
+
 import keyboard
 import winsound
 from models import FishNet
@@ -16,7 +18,7 @@ args = parser.parse_args()
 if __name__ == '__main__':
 
     net = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
-    env = Fishing(delay=0.1, max_step=10000, show_det=False)
+    env = Fishing(delay=0.1, max_step=10000, show_det=True)
 
     net.load_state_dict(torch.load(args.model_dir))
     net.eval()
@@ -24,6 +26,14 @@ if __name__ == '__main__':
     while True:
         winsound.Beep(500, 500)
         keyboard.wait('r')
+        while True:
+            if env.is_bite():
+                break
+            time.sleep(0.5)
+        winsound.Beep(700, 500)
+        env.drag()
+        time.sleep(1)
+
         state = env.reset()
         for i in range(10000):
             state = torch.FloatTensor(state).unsqueeze(0)

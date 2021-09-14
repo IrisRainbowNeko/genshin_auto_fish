@@ -12,6 +12,8 @@ class Fishing:
         self.t_l = cv2.imread('imgs/target_left.png')
         self.t_r = cv2.imread('imgs/target_right.png')
         self.t_n = cv2.imread('imgs/target_now.png')
+        self.im_bar = cv2.imread('imgs/bar2.png')
+        self.bite = cv2.imread('imgs/bite.png', cv2.IMREAD_GRAYSCALE)
         self.std_color=np.array([192,255,255])
         self.r_ring=21
         self.delay=delay
@@ -22,7 +24,8 @@ class Fishing:
         self.add_vec=[0,2,0,2,0,2]
 
     def reset(self):
-        self.img=cap([712 - 10, 94, 496 + 20, 103])
+        self.y_start = self.find_bar()[0]
+        self.img=cap([712 - 10, self.y_start, 496 + 20, 103])
 
         self.fish_start=False
         self.zero_count=0
@@ -41,6 +44,21 @@ class Fishing:
 
     def scale(self, x):
         return (x-5-10)/484
+
+    def find_bar(self):
+        img = cap(region=[700, 0, 520, 300])
+        bbox_bar = match_img(img, self.im_bar)
+        if self.show_det:
+            img=deepcopy(img)
+            cv2.rectangle(img, bbox_bar[:2], bbox_bar[2:4], (0, 0, 255), 1)  # 画出矩形位置
+            cv2.imwrite(f'./img_tmp/bar.jpg',img)
+        return bbox_bar[1]-9, bbox_bar
+
+    def is_bite(self):
+        img = cap(region=[1595, 955, 74, 74])
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        edge_output = cv2.Canny(gray, 50, 150)
+        return psnr(self.bite, edge_output)>10
 
     def get_state(self):
         bar_img=self.img[2:34,:,:]
@@ -85,7 +103,7 @@ class Fishing:
         self.do_action(action)
 
         time.sleep(self.delay-0.05)
-        self.img=cap([712 - 10, 94, 496 + 20, 103])
+        self.img=cap([712 - 10, self.y_start, 496 + 20, 103])
         self.step_count+=1
 
         score=self.get_score()
@@ -97,7 +115,7 @@ class Fishing:
         self.reward=score-self.last_score
         self.last_score=score
 
-        return self.get_state(), self.reward, (self.step_count>self.max_step or (self.zero_count>=15 and self.fish_start) or score>177)
+        return self.get_state(), self.reward, (self.step_count>self.max_step or (self.zero_count>=15 and self.fish_start) or score>176)
 
     def render(self):
         pass

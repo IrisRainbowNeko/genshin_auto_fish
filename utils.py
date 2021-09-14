@@ -17,3 +17,10 @@ def list_add(li, num):
         return [x+num for x in li]
     elif isinstance(num, list) or isinstance(num, tuple):
         return [x+y for x,y in zip(li,num)]
+
+def psnr(img1, img2):
+   mse = np.mean( (img1/255. - img2/255.) ** 2 )
+   if mse < 1.0e-10:
+      return 100
+   PIXEL_MAX = 1
+   return 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
