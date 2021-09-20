@@ -11,6 +11,8 @@
 python setup.py develop
 ```
 
+下载预训练(权重)[https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights]
+
 
 ## YOLOX训练工作流程
 YOLOX部分因为打标签太累所以用半监督学习。标注少量样本后训练模型生成其余样本伪标签再人工修正，不断迭代提高精度。
