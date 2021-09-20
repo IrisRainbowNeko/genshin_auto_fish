@@ -31,7 +31,7 @@ class FishFind:
             obj_list = self.predictor.image_det(cap())
             if obj_list is None:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 70 * fx(i), 0, 0, 0)
-                time.sleep(0.2)
+                time.sleep(0.1)
                 continue
             cls_list = set([x[0] for x in obj_list])
             counter.update(cls_list)
