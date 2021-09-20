@@ -2,13 +2,13 @@ import cv2
 import pyautogui
 import numpy as np
 
-def cap(region):
-    img = pyautogui.screenshot(region=region)
+def cap(region=None):
+    img = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
-def match_img(img, target):
+def match_img(img, target, type=cv2.TM_CCOEFF):
     h, w = target.shape[:2]
-    res = cv2.matchTemplate(img, target, cv2.TM_CCOEFF)
+    res = cv2.matchTemplate(img, target, type)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
     return (*max_loc, max_loc[0] + w, max_loc[1] + h, max_loc[0] + w // 2, max_loc[1] + h // 2)
 
@@ -24,3 +24,6 @@ def psnr(img1, img2):
       return 100
    PIXEL_MAX = 1
    return 20 * np.log10(PIXEL_MAX / np.sqrt(mse))
+
+def distance(x1,y1,x2,y2):
+    return np.sqrt(np.square(x1-x2)+np.square(y1-y2))

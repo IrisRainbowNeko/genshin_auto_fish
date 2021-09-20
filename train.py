@@ -1,6 +1,6 @@
-from agent import DQN
-from models import FishNet
-from environment import *
+from fisher.agent import DQN
+from fisher.models import FishNet
+from fisher.environment import *
 import torch
 import argparse
 import os
@@ -14,7 +14,7 @@ parser.add_argument('--n_actions', default=2, type=int)
 parser.add_argument('--step_tick', default=12, type=int)
 parser.add_argument('--n_episode', default=400, type=int)
 parser.add_argument('--save_dir', default='./output', type=str)
-parser.add_argument('--resume', default='./output/fish_sim_net_399.pth', type=str)
+parser.add_argument('--resume', default='./output/fish_sim_net.pth', type=str)
 args = parser.parse_args()
 
 if not os.path.exists(args.save_dir):

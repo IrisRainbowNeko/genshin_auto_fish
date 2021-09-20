@@ -1,10 +1,10 @@
-from agent import DQN
-from models import FishNet
-from environment import *
+from fisher.agent import DQN
+from fisher.models import FishNet
+from fisher.environment import *
 import torch
 import argparse
 import os
-from render import *
+from utils.render import *
 
 parser = argparse.ArgumentParser(description='Train Genshin finsing simulation with DQN')
 parser.add_argument('--batch_size', default=32, type=int)

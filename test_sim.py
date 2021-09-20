@@ -1,9 +1,8 @@
-from render import *
-from models import FishNet
-from environment import *
+from utils.render import *
+from fisher.models import FishNet
+from fisher.environment import *
 import torch
 import argparse
-import os
 from matplotlib.animation import FFMpegWriter
 
 parser = argparse.ArgumentParser(description='Test Genshin finsing with DQN')

@@ -1,18 +1,15 @@
-import time
-
 import keyboard
 import winsound
-from models import FishNet
-from environment import *
+from fisher.models import FishNet
+from fisher.environment import *
 import torch
 import argparse
-import os
 
 parser = argparse.ArgumentParser(description='Test Genshin finsing with DQN')
 parser.add_argument('--n_states', default=3, type=int)
 parser.add_argument('--n_actions', default=2, type=int)
 parser.add_argument('--step_tick', default=12, type=int)
-parser.add_argument('--model_dir', default='./output/fish_ys_net_46.pth', type=str)
+parser.add_argument('--model_dir', default='./output/fish_genshin_net.pth', type=str)
 args = parser.parse_args()
 
 if __name__ == '__main__':
