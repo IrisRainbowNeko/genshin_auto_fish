@@ -11,7 +11,7 @@
 python setup.py develop
 ```
 
-下载预训练(权重)[https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights]
+下载预训练[权重](https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights)
 
 
 ## YOLOX训练工作流程
