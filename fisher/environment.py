@@ -84,9 +84,10 @@ class FishFind:
                 if abs(x_dist)<30 and abs((fish_info[2][3] + fish_info[2][1]) / 2 - rod_info[2][3])<30:
                     break
 
-                dx = move_func(x_dist)
+                dx = int(move_func(x_dist))
+                dy = int(move_func(((fish_info[2][3]) + fish_info[2][1]) / 2 - rod_info[2][3]))
                 #win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, fish_info[2][2] - rod_info[2][2] + 50, (fish_info[2][3] + fish_info[2][1]) / 2 - rod_info[2][3], 0, 0)
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, dx, move_func((fish_info[2][3] + fish_info[2][1]) / 2 - rod_info[2][3]), 0, 0)
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, dx, dy, 0, 0)
             except Exception as e:
                 traceback.print_exc()
             #time.sleep(0.3)
