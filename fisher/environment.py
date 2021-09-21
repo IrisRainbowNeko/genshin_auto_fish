@@ -65,6 +65,8 @@ class FishFind:
                 rod_info = sorted(list(filter(lambda x: x[0] == 'rod', obj_list)), key=lambda x: x[1], reverse=True)
                 if len(rod_info)<=0:
                     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, np.random.randint(-50,50), np.random.randint(-50,50), 0, 0)
+                    time.sleep(0.1)
+                    continue
                 rod_info=rod_info[0]
                 rod_cx = (rod_info[2][0] + rod_info[2][2]) / 2
                 rod_cy = (rod_info[2][1] + rod_info[2][3]) / 2
