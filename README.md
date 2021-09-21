@@ -14,6 +14,7 @@
 conda create -n ysfish python=3.6
 conda activate ysfish
 ```
+安装<font color=#66CCFF>**python3.7或以下**</font>版本，否则pyHook要自己编译。
 
 ## pyHook安装
 安装PyUserInput前需要安装<font color=#66CCFF>**pyHook**</font>适用于win10的版本可以在 [这里](https://www.lfd.uci.edu/~gohlke/pythonlibs/) 找到。
@@ -32,7 +33,7 @@ pip install pyHook-1.5.1-cp36-cp36m-win_amd64.whl
 ```
 
 ## 下载工程代码
-使用git下载:
+使用git下载，[git安装教程](https://www.cnblogs.com/xiaoliu66/p/9404963.html):
 ```shell
 git clone https://github.com/7eu7d7/genshin_auto_fish.git
 ```
@@ -52,7 +53,7 @@ python requirements.py
 ```shell
 pip install -U pip
 python requirements.py --cuda [cuda版本]
-#例如安装的CUDA11.0
+#例如安装的CUDA11.x
 python requirements.py --cuda 110
 ```
 可能会有Time out之类的报错，多试几遍，github太卡。
@@ -69,11 +70,11 @@ python setup.py develop
 
 ## 可能的问题
 如果后续运行出现<font color=red>ModuleNotFoundError: No module named 'windows'</font>\
-把 [anaconda安装路径]/envs/ysfish/Lib/site-packages/pymouse/__init__.py中的\
+把 [anaconda安装路径]/envs/ysfish/Lib/site-packages/pymouse/\_\_init\_\_.py中的
 ```python
 from windows import PyMouse, PyMouseEvent
 ```
-改为\
+改为
 ```python
 from .windows import PyMouse, PyMouseEvent
 ```
@@ -103,6 +104,8 @@ python train.py
 ```
 
 # 运行钓鱼AI
+命令行窗口一定要以<font color=#66CCFF>**管理员权限**</font>启动
+
 显卡加速
 ```shell
 python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
