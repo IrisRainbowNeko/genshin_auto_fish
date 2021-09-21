@@ -151,10 +151,10 @@ def start_fishing(predictor, agent, bite_timeout=20):
     ff = FishFind(predictor)
     env = Fishing(delay=0.1, max_step=10000, show_det=True)
 
-    while True:
-        winsound.Beep(500, 500)
-        keyboard.wait('r')
+    winsound.Beep(500, 500)
+    keyboard.wait('r')
 
+    while True:
         ff.do_fish()
         winsound.Beep(700, 500)
         times=0
@@ -180,6 +180,7 @@ def start_fishing(predictor, agent, bite_timeout=20):
             state, reward, done = env.step(action)
             if done:
                 break
+        time.sleep(1)
 
 #python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
 if __name__ == "__main__":
