@@ -8,6 +8,7 @@ import time
 from copy import deepcopy
 from collections import Counter
 import traceback
+import os
 
 class FishFind:
     def __init__(self, predictor, show_det=True):
@@ -23,6 +24,7 @@ class FishFind:
         self.food_rgn=[580,400,740,220]
         self.last_fish_type='hua jiang'
         self.show_det=show_det
+        os.makedirs('img_tmp/', exist_ok=True)
 
     def get_fish_types(self, n=12, rate=0.6):
         counter = Counter()
