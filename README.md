@@ -83,6 +83,10 @@ from .windows import PyMouse, PyMouseEvent
 YOLOX部分因为打标签太累所以用半监督学习。标注少量样本后训练模型生成其余样本伪标签再人工修正，不断迭代提高精度。
 样本量较少所以使用迁移学习，在COCO预训练的模型上进行fine-tuning.
 
+下载数据集并解压：[原神鱼群数据集](https://1drv.ms/u/s!Agabh9imkP8qhHkZYzKsi_OQ4pfj?e=V2VApo)
+
+将yolox/exp/yolox_tiny_fish.py中的self.data_dir的值改为解压后2个文件夹所在的路径。
+
 训练代码:
 ```shell
 python yolox_tools/train.py -f yolox/exp/yolox_tiny_fish.py -d 1 -b 8 --fp16 -o -c weights/yolox_tiny.pth
