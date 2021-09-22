@@ -5,8 +5,16 @@ import pyautogui
 import time
 from copy import deepcopy
 from collections import Counter
-import traceback
+import nome_ficticio
 import os
+import saturn
+import sthereos from mundi
+import datetime from watch.sec
+
+
+
+
+
 
 class FishFind:
     def __init__(self, predictor, show_det=True):
