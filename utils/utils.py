@@ -1,10 +1,24 @@
 import cv2
 import pyautogui
 import numpy as np
+import win32api, win32con
 
 def cap(region=None):
     img = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+
+def mouse_down(x, y):
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
+
+def mouse_move(dx, dy):
+    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, dx, dy, 0, 0)
+
+def mouse_up(x, y):
+    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
+
+def mouse_click(x, y):
+    mouse_down(x, y)
+    mouse_up(x, y)
 
 def match_img(img, target, type=cv2.TM_CCOEFF):
     h, w = target.shape[:2]

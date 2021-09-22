@@ -1,9 +1,7 @@
 import numpy as np
 from utils import *
 import cv2
-from pymouse import *
 import pyautogui
-import win32api, win32con
 import time
 from copy import deepcopy
 from collections import Counter
@@ -23,6 +21,7 @@ class FishFind:
         self.dist_dict={'hua jiang':130, 'ji yu':80, 'die yu':80, 'jia long':80, 'pao yu':80}
         self.food_rgn=[580,400,740,220]
         self.last_fish_type='hua jiang'
+        #self.last_fish_type='die yu' # 钓雷鸣仙
         self.show_det=show_det
         os.makedirs('img_tmp/', exist_ok=True)
 
@@ -32,22 +31,18 @@ class FishFind:
         for i in range(n):
             obj_list = self.predictor.image_det(cap())
             if obj_list is None:
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 70 * fx(i), 0, 0, 0)
+                mouse_move(70 * fx(i), 0)
                 time.sleep(0.1)
                 continue
             cls_list = set([x[0] for x in obj_list])
             counter.update(cls_list)
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 70 * fx(i), 0, 0, 0)
+            mouse_move(70 * fx(i), 0)
             time.sleep(0.2)
-            # pyautogui.moveRel(50, 0, duration=0.5)
-            # for u in range(1,51):
-            #    mosue.move(sx + u, sy)
-            #    time.sleep(0.003)
         fish_list = [k for k, v in dict(counter).items() if v / n >= rate]
         return fish_list
 
     def throw_rod(self, fish_type):
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, 0, 0)
+        mouse_down(960, 540)
         time.sleep(1)
 
         def move_func(dist):
@@ -64,7 +59,7 @@ class FishFind:
 
                 rod_info = sorted(list(filter(lambda x: x[0] == 'rod', obj_list)), key=lambda x: x[1], reverse=True)
                 if len(rod_info)<=0:
-                    win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, np.random.randint(-50,50), np.random.randint(-50,50), 0, 0)
+                    mouse_move(np.random.randint(-50,50), np.random.randint(-50,50))
                     time.sleep(0.1)
                     continue
                 rod_info=rod_info[0]
@@ -86,19 +81,18 @@ class FishFind:
 
                 dx = int(move_func(x_dist))
                 dy = int(move_func(((fish_info[2][3]) + fish_info[2][1]) / 2 - rod_info[2][3]))
-                #win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, fish_info[2][2] - rod_info[2][2] + 50, (fish_info[2][3] + fish_info[2][1]) / 2 - rod_info[2][3], 0, 0)
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, dx, dy, 0, 0)
+                mouse_move(dx, dy)
             except Exception as e:
                 traceback.print_exc()
             #time.sleep(0.3)
-        win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, 0, 0)
+        mouse_up(960, 540)
 
     def select_food(self, fish_type):
         pyautogui.press('f')
         time.sleep(1)
         pyautogui.click(1650, 790, button=pyautogui.SECONDARY)
         time.sleep(0.5)
-        bbox_food = match_img(cap(self.food_rgn), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCOEFF_NORMED)
+        bbox_food = match_img(cap(self.food_rgn), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCORR_NORMED)
         pyautogui.click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
         time.sleep(0.1)
         pyautogui.click(1183, 756)
@@ -113,7 +107,6 @@ class FishFind:
 
 class Fishing:
     def __init__(self, delay=0.1, max_step=100, show_det=True, predictor=None):
-        self.mosue = PyMouse()
         self.t_l = cv2.imread('./imgs/target_left.png')
         self.t_r = cv2.imread('./imgs/target_right.png')
         self.t_n = cv2.imread('./imgs/target_now.png')
@@ -141,7 +134,7 @@ class Fishing:
         return self.get_state()
 
     def drag(self):
-        self.mosue.click(1630,995)
+        mouse_click(1630,995)
 
     def do_action(self, action):
         if action==1:

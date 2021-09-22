@@ -11,7 +11,6 @@ scikit-image
 loguru
 matplotlib
 tabulate
-PyUserInput
 tqdm
 pywin32
 PyAutoGUI
@@ -21,10 +20,11 @@ Pillow
 pymouse
 numpy==1.19.5
 torch==1.7.0+{"cpu" if args.cuda is None else "cu" + args.cuda} -f https://download.pytorch.org/whl/torch_stable.html
---no-deps torchvision==0.8.1+{"cpu" if args.cuda is None else "cu" + args.cuda} -f https://download.pytorch.org/whl/torch_stable.html
-thop
+torchvision==0.8.1+{"cpu" if args.cuda is None else "cu" + args.cuda} --no-deps -f https://download.pytorch.org/whl/torch_stable.html
+thop --no-deps
 git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
 '''
 
 for line in pkgs.split('\n'):
-    pip.main(['install', *line.split()])
+    if len(line)>0:
+        pip.main(['install', *line.split()])

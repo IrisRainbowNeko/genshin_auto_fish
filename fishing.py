@@ -180,7 +180,7 @@ def start_fishing(predictor, agent, bite_timeout=20):
             state, reward, done = env.step(action)
             if done:
                 break
-        time.sleep(1)
+        time.sleep(3)
 
 #python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
 if __name__ == "__main__":

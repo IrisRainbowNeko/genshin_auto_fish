@@ -14,23 +14,7 @@
 conda create -n ysfish python=3.6
 conda activate ysfish
 ```
-安装<font color=#66CCFF>**python3.7或以下**</font>版本，否则pyHook要自己编译。
-
-## pyHook安装
-安装PyUserInput前需要安装<font color=#66CCFF>**pyHook**</font>适用于win10的版本可以在 [这里](https://www.lfd.uci.edu/~gohlke/pythonlibs/) 找到。
-
-适用于python3.6的文件为：\
-64位：[pyHook‑1.5.1‑cp36‑cp36m‑win_amd64.whl](https://download.lfd.uci.edu/pythonlibs/y2rycu7g/cp36/pyHook-1.5.1-cp36-cp36m-win_amd64.whl) \
-32位：[pyHook‑1.5.1‑cp36‑cp36m‑win32.whl](https://download.lfd.uci.edu/pythonlibs/y2rycu7g/cp36/pyHook-1.5.1-cp36-cp36m-win32.whl)
-
-下载文件后将命令行切换到文件所在目录，执行:
-```shell
-pip install [文件名].whl
-```
-例如在64位的python3.6下安装：
-```shell
-pip install pyHook-1.5.1-cp36-cp36m-win_amd64.whl
-```
+推荐安装<font color=#66CCFF>**python3.7或以下**</font>版本。
 
 ## 下载工程代码
 使用git下载，[git安装教程](https://www.cnblogs.com/xiaoliu66/p/9404963.html):
@@ -46,7 +30,7 @@ cd genshin_auto_fish
 ```
 执行以下命令安装依赖:
 ```shell
-pip install -U pip
+python -m pip install -U pip
 python requirements.py
 ```
 如果要使用显卡进行加速需要 [安装CUDA和cudnn](https://zhuanlan.zhihu.com/p/94220564?utm_source=wechat_session&ivk_sa=1024320u) 安装后无视上面的命令用下面这条安装gpu版:
@@ -67,17 +51,6 @@ python setup.py develop
 ## 预训练权重下载
 下载预训练[权重](https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights) (.pth文件),
 下载后将权重文件放在 <font color=#66CCFF>**工程目录/weights**</font> 下
-
-## 可能的问题
-如果后续运行出现<font color=red>ModuleNotFoundError: No module named 'windows'</font>\
-把 [anaconda安装路径]/envs/ysfish/Lib/site-packages/pymouse/\_\_init\_\_.py中的
-```python
-from windows import PyMouse, PyMouseEvent
-```
-改为
-```python
-from .windows import PyMouse, PyMouseEvent
-```
 
 # YOLOX训练工作流程
 YOLOX部分因为打标签太累所以用半监督学习。标注少量样本后训练模型生成其余样本伪标签再人工修正，不断迭代提高精度。
