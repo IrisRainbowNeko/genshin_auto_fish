@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import pyautogui
 import numpy as np
@@ -18,6 +20,7 @@ def mouse_up(x, y):
 
 def mouse_click(x, y):
     mouse_down(x, y)
+    time.sleep(0.05)
     mouse_up(x, y)
 
 def match_img(img, target, type=cv2.TM_CCOEFF):
