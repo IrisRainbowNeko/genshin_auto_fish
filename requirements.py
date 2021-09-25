@@ -43,6 +43,7 @@ def main():
     tqdm
     pywin32
     PyAutoGUI
+    PyYAML>=5.3.1
     opencv_python
     keyboard
     Pillow

@@ -1,0 +1,6 @@
+---
+  windows:
+    monitor_width: 1920
+    monitor_height: 1080
+  game:
+    window_name: "原神"
