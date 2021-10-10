@@ -155,7 +155,12 @@ def start_fishing(predictor, agent, bite_timeout=20):
     keyboard.wait('r')
 
     while True:
-        ff.do_fish()
+        result: bool = ff.do_fish()
+
+        # continue if no fish found
+        if result is not True:
+            continue
+
         winsound.Beep(700, 500)
         times=0
         while True:
@@ -166,7 +171,7 @@ def start_fishing(predictor, agent, bite_timeout=20):
             if times>bite_timeout:
                 env.drag()
                 time.sleep(3)
-                ff.do_fish(fish_init=False)
+                _ = ff.do_fish(fish_init=False)
                 times=0
         winsound.Beep(900, 500)
         env.drag()

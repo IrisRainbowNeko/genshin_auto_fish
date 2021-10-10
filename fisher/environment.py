@@ -97,13 +97,20 @@ class FishFind:
         time.sleep(0.1)
         pyautogui.click(1183, 756)
 
-    def do_fish(self, fish_init=True):
+    def do_fish(self, fish_init=True) -> bool:
         if fish_init:
             self.fish_list = self.get_fish_types()
+
+        # return false if fish_list is empty
+        if not self.fish_list:
+            return False
+        
         if self.fish_list[0]!=self.last_fish_type:
             self.select_food(self.fish_list[0])
             self.last_fish_type = self.fish_list[0]
         self.throw_rod(self.fish_list[0])
+
+        return True
 
 class Fishing:
     def __init__(self, delay=0.1, max_step=100, show_det=True, predictor=None):
