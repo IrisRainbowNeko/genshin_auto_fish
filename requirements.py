@@ -12,13 +12,13 @@ def pip_install(proxy: Optional[str], args: List[str]) -> None:
         # pip.main(["install", f"--proxy={proxy}", *args])
         subprocess.run(
             [sys.executable, "-m", "pip", "install", *args],
-            capture_output=False,
+            # capture_output=False,
             check=True,
         )
     else:
         subprocess.run(
             [sys.executable, "-m", "pip", "install", f"--proxy={proxy}", *args],
-            capture_output=False,
+            # capture_output=False,
             check=True,
         )
 
