@@ -39,6 +39,7 @@ pip install -U pip
 python requirements.py --cuda [cuda版本]
 #例如安装的CUDA11.x
 python requirements.py --cuda 110
+python requirements.py --cuda 110 --proxy http://127.0.0.1:1080 # use proxy to speed up
 ```
 可能会有Time out之类的报错，多试几遍，github太卡。
 
