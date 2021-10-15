@@ -1,4 +1,6 @@
-import pip
+# import pip
+import subprocess
+import sys
 import argparse
 
 parser = argparse.ArgumentParser(description='install requirements')
@@ -28,3 +30,4 @@ git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
 for line in pkgs.split('\n'):
     if len(line)>0:
         pip.main(['install', '--default-timeout=100', *line.split()])
+
