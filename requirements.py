@@ -27,4 +27,4 @@ git+https://github.com/philferriere/cocoapi.git#subdirectory=PythonAPI
 
 for line in pkgs.split('\n'):
     if len(line)>0:
-        pip.main(['install', *line.split()])
+        pip.main(['install', '--default-timeout=100', *line.split()])
