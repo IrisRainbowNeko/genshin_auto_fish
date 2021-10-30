@@ -7,6 +7,12 @@
 # 安装使用流程
 安装python运行环境（解释器），推荐使用 [anaconda](https://www.anaconda.com/products/individual#Downloads).
 
+安装C++编译环境，推荐使用[Visual Studio 2019 生成工具](https://visualstudio.microsoft.com/zh-hans/downloads/)
+>  <video src="./video/auto_fishing-install-vstools.mkv" controls="controls" width="700px" height="400px"></video>
+
+> 可前往“依赖文件下载”进行下载
+> tips:请不要升级pip
+
 ## python环境配置
 
 打开anaconda prompt(命令行界面)，创建新python环境并激活:
