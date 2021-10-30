@@ -9,7 +9,7 @@
 
 安装C++编译环境，推荐使用[Visual Studio 2019 生成工具](https://visualstudio.microsoft.com/zh-hans/downloads/)
 >  <video src="./video/auto_fishing-install-vstools.mkv" controls="controls" width="700px" height="400px"></video>
-
+>
 > 可前往“依赖文件下载”进行下载
 >
 > tips: 请不要升级 pip
