@@ -19,7 +19,7 @@ class Exp(MyExp):
         self.enable_mixup = False
 
         # Define yourself dataset path
-        self.data_dir = "../datas/fish_dataset"
+        self.data_dir = "C:\Users\zhaor\Git_Coding\genshin_auto_fish-2\weights"
         self.data_name = 'images'
         self.val_name = 'images'
         self.train_ann = "fish_p2_75+jam.json"
