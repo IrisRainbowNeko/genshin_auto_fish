@@ -11,6 +11,7 @@
 >  <video src="./video/auto_fishing-install-vstools.mkv" controls="controls" width="700px" height="400px"></video>
 
 > 可前往“依赖文件下载”进行下载
+
 > tips:请不要升级pip
 
 ## python环境配置
