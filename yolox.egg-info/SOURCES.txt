@@ -1,8 +1,8 @@
 README.md
 setup.cfg
 setup.py
-C:/Users/zhaor/Git_Coding/genshin_auto_fish-2/yolox/layers/csrc/vision.cpp
-C:/Users/zhaor/Git_Coding/genshin_auto_fish-2/yolox/layers/csrc/cocoeval/cocoeval.cpp
+C:/Users/zhaor/GitCoding/genshinautofish2/yolox/layers/csrc/vision.cpp
+C:/Users/zhaor/GitCoding/genshinautofish2/yolox/layers/csrc/cocoeval/cocoeval.cpp
 fisher/__init__.py
 fisher/agent.py
 fisher/environment.py
