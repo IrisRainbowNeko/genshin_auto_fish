@@ -143,36 +143,56 @@ def main(exp, args):
     agent.load_state_dict(torch.load(args.model_dir))
     agent.eval()
 
-    print('init ok')
-    if args.demo == "image":
-        start_fishing(predictor, agent)
+    print('INIT OK')
+    while True:
+        print('Waiting for "r" to perform fishing')
+        winsound.Beep(500, 500)
+        keyboard.wait('r')
+        winsound.Beep(500, 500)
+        if args.demo == "image":
+            start_fishing(predictor, agent)
 
-def start_fishing(predictor, agent, bite_timeout=20):
+def start_fishing(predictor, agent, bite_timeout=45):
     ff = FishFind(predictor)
     env = Fishing(delay=0.1, max_step=10000, show_det=True)
 
-    winsound.Beep(500, 500)
-    keyboard.wait('r')
-
+    
+    do_fish_count = 0
     while True:
+        continue_flag = False
+        if do_fish_count > 5:
+            winsound.Beep(500, 1000)
+            time.sleep(0.5)
+            winsound.Beep(500, 1000)
+            time.sleep(0.5)
+            winsound.Beep(500, 1000)
+            do_fish_count = 0
+            break
         result: bool = ff.do_fish()
 
         # continue if no fish found
         if result is not True:
+            do_fish_count += 1
             continue
 
+        do_fish_count = 0
         winsound.Beep(700, 500)
         times=0
-        while True:
+        while result is True:
             if env.is_bite():
                 break
             time.sleep(0.5)
             times+=1
-            if times>bite_timeout:
-                env.drag()
+            if times>bite_timeout and not(env.is_bite()):
+                if env.is_fishing():
+                    env.drag()
                 time.sleep(3)
-                _ = ff.do_fish(fish_init=False)
                 times=0
+                continue_flag = True
+                break
+
+        if continue_flag == True:continue
+
         winsound.Beep(900, 500)
         env.drag()
         time.sleep(1)

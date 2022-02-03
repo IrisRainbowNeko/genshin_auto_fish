@@ -23,7 +23,7 @@ with open(CONFIG_PATH, encoding='utf-8') as f:
 #     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 
-def cap(region=None):
+def cap(region=None ,fmt='RGB'):
     if region is not None:
         left, top, w, h = region
         # w = x2 - left + 1
@@ -55,8 +55,13 @@ def cap(region=None):
     cDC.DeleteDC()
     win32gui.ReleaseDC(hwnd, wDC)
     win32gui.DeleteObject(dataBitMap.GetHandle())
-
-    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+    
+    if fmt == 'BGR':
+        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2BGR)
+    if fmt == 'RGB':
+        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2RGB)
+    else:
+        raise ValueError('Cannot indetify this fmt')
 
 
 def mouse_down(x, y):
@@ -80,13 +85,22 @@ def match_img(img, target, type=cv2.TM_CCOEFF):
     h, w = target.shape[:2]
     res = cv2.matchTemplate(img, target, type)
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-    return (
-        *max_loc,
-        max_loc[0] + w,
-        max_loc[1] + h,
-        max_loc[0] + w // 2,
-        max_loc[1] + h // 2,
-    )
+    if type in [cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED]:
+        return (
+            *min_loc,
+            min_loc[0] + w,
+            max_loc[1] + h,
+            min_loc[0] + w // 2,
+            min_loc[1] + h // 2,
+        )
+    else:
+        return (
+            *max_loc,
+            max_loc[0] + w,
+            max_loc[1] + h,
+            max_loc[0] + w // 2,
+            max_loc[1] + h // 2,
+        )
 
 
 def list_add(li, num):

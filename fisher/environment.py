@@ -28,11 +28,13 @@ class FishFind:
     def get_fish_types(self, n=12, rate=0.6):
         counter = Counter()
         fx = lambda x: int(np.sign(np.cos(np.pi * (x / (n // 2)) + 1e-4)))
+        mouse_move(0, 200)
+        time.sleep(0.2)
         for i in range(n):
             obj_list = self.predictor.image_det(cap())
             if obj_list is None:
                 mouse_move(70 * fx(i), 0)
-                time.sleep(0.1)
+                time.sleep(0.2)
                 continue
             cls_list = set([x[0] for x in obj_list])
             counter.update(cls_list)
@@ -88,13 +90,11 @@ class FishFind:
         mouse_up(960, 540)
 
     def select_food(self, fish_type):
-        pyautogui.press('f')
-        time.sleep(1)
         pyautogui.click(1650, 790, button=pyautogui.SECONDARY)
         time.sleep(0.5)
-        bbox_food = match_img(cap(self.food_rgn), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCORR_NORMED)
+        bbox_food = match_img(cap(self.food_rgn, fmt='RGB'), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_SQDIFF_NORMED)
         pyautogui.click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
-        time.sleep(0.1)
+        time.sleep(0.5)
         pyautogui.click(1183, 756)
 
     def do_fish(self, fish_init=True) -> bool:
@@ -119,6 +119,7 @@ class Fishing:
         self.t_n = cv2.imread('./imgs/target_now.png')
         self.im_bar = cv2.imread('./imgs/bar2.png')
         self.bite = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
+        self.fishing = cv2.imread('./imgs/fishing.png', cv2.IMREAD_GRAYSCALE)
         self.std_color=np.array([192,255,255])
         self.r_ring=21
         self.delay=delay
@@ -127,6 +128,12 @@ class Fishing:
         self.show_det=show_det
 
         self.add_vec=[0,2,0,2,0,2]
+
+    def is_fishing(self):
+        img = cap(region=[1595, 955, 74, 74],fmt='RGB')
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        edge_output = cv2.Canny(gray, 50, 150)
+        return psnr(self.fishing, edge_output)>10
 
     def reset(self):
         self.y_start = self.find_bar()[0]
@@ -160,7 +167,7 @@ class Fishing:
         return bbox_bar[1]-9, bbox_bar
 
     def is_bite(self):
-        img = cap(region=[1595, 955, 74, 74])
+        img = cap(region=[1595, 955, 74, 74],fmt='RGB')
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         edge_output = cv2.Canny(gray, 50, 150)
         return psnr(self.bite, edge_output)>10
@@ -210,7 +217,7 @@ class Fishing:
         self.do_action(action)
 
         time.sleep(self.delay-0.05)
-        self.img=cap([712 - 10, self.y_start, 496 + 20, 103])
+        self.img=cap([712 - 10, self.y_start, 496 + 20, 103],fmt='RGB')
         self.step_count+=1
 
         score=self.get_score()
