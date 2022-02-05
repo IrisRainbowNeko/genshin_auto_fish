@@ -147,7 +147,7 @@ def main(exp, args):
     if args.demo == "image":
         start_fishing(predictor, agent)
 
-def start_fishing(predictor, agent, bite_timeout=20):
+def start_fishing(predictor, agent, bite_timeout=35):
     ff = FishFind(predictor)
     env = Fishing(delay=0.1, max_step=10000, show_det=True)
 
