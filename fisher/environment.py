@@ -94,8 +94,14 @@ class FishFind:
         time.sleep(0.5)
         bbox_food = match_img(cap(self.food_rgn), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCORR_NORMED)
         pyautogui.click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
+        time.sleep(0.5)
+        error_repeat_std_color = [48, 43, 41]
+        if np.mean(np.abs(cap(self.food_rgn)[219][739]-error_repeat_std_color))<5:
+            pyautogui.click(1300, 756)
+            time.sleep(0.1)
+        
         time.sleep(0.1)
-        pyautogui.click(1183, 756)
+        pyautogui.click(1300, 756)
 
     def do_fish(self, fish_init=True) -> bool:
         if fish_init:
@@ -119,7 +125,7 @@ class Fishing:
         self.t_n = cv2.imread('./imgs/target_now.png')
         self.im_bar = cv2.imread('./imgs/bar2.png')
         self.bite = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
-        self.std_color=np.array([255,255,192])
+        self.std_color=np.array([192,255,255])
         self.r_ring=21
         self.delay=delay
         self.max_step=max_step
