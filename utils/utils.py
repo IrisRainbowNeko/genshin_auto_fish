@@ -23,7 +23,7 @@ with open(CONFIG_PATH, encoding='utf-8') as f:
 #     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
 
-def cap(region=None):
+def cap(region=None ,fmt='RGB'):
     if region is not None:
         left, top, w, h = region
         # w = x2 - left + 1
@@ -56,7 +56,12 @@ def cap(region=None):
     win32gui.ReleaseDC(hwnd, wDC)
     win32gui.DeleteObject(dataBitMap.GetHandle())
 
-    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+    if fmt == 'BGR':
+        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2BGR)
+    if fmt == 'RGB':
+        return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGBA2RGB)
+    else:
+        raise ValueError('Cannot indetify this fmt')
 
 
 def mouse_down(x, y):
