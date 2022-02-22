@@ -1,4 +1,5 @@
 import time
+import argparse
 
 import cv2
 import pyautogui
@@ -17,13 +18,25 @@ with open(CONFIG_PATH, encoding='utf-8') as f:
     DEFAULT_MONITOR_HEIGHT = result.get("windows").get("monitor_height")
     WINDOW_NAME = result.get("game").get("window_name")
 
+MOUSE_LEFT=0
+MOUSE_MID=1
+MOUSE_RIGHT=2
+
+mouse_list_down=[win32con.MOUSEEVENTF_LEFTDOWN, win32con.MOUSEEVENTF_MIDDLEDOWN, win32con.MOUSEEVENTF_RIGHTDOWN]
+mouse_list_up=[win32con.MOUSEEVENTF_LEFTUP, win32con.MOUSEEVENTF_MIDDLEUP, win32con.MOUSEEVENTF_RIGHTUP]
+
+gvars=argparse.Namespace()
+hwnd = win32gui.FindWindow(None, WINDOW_NAME)
+gvars.genshin_window_rect = win32gui.GetWindowRect(hwnd)
 
 # def cap(region=None):
 #     img = pyautogui.screenshot(region=region) if region else pyautogui.screenshot()
 #     return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
 
-
 def cap(region=None ,fmt='RGB'):
+    return cap_raw(gvars.genshin_window_rect_img if region is None else (region[0]+gvars.genshin_window_rect_img[0], region[1]+gvars.genshin_window_rect_img[1], region[2], region[3]), fmt=fmt)
+
+def cap_raw(region=None ,fmt='RGB'):
     if region is not None:
         left, top, w, h = region
         # w = x2 - left + 1
@@ -64,22 +77,37 @@ def cap(region=None ,fmt='RGB'):
         raise ValueError('Cannot indetify this fmt')
 
 
-def mouse_down(x, y):
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 0, 0)
+def mouse_down(x, y, button=MOUSE_LEFT):
+    time.sleep(0.1)
+    xx,yy=x+gvars.genshin_window_rect[0], y+gvars.genshin_window_rect[1]
+    win32api.SetCursorPos((xx,yy))
+    win32api.mouse_event(mouse_list_down[button], xx, yy, 0, 0)
 
 
 def mouse_move(dx, dy):
     win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, dx, dy, 0, 0)
 
+def mouse_up(x, y, button=MOUSE_LEFT):
+    time.sleep(0.1)
+    xx, yy = x + gvars.genshin_window_rect[0], y + gvars.genshin_window_rect[1]
+    win32api.SetCursorPos((xx, yy))
+    win32api.mouse_event(mouse_list_up[button], xx, yy, 0, 0)
 
-def mouse_up(x, y):
-    win32api.mouse_event(win32con.MOUSEEVENTF_LEFTUP, x, y, 0, 0)
+def mouse_click(x, y, button=MOUSE_LEFT):
+    mouse_down(x, y, button)
+    mouse_up(x, y, button)
 
+def mouse_down_raw(x, y, button=MOUSE_LEFT):
+    xx, yy = x + gvars.genshin_window_rect[0], y + gvars.genshin_window_rect[1]
+    win32api.mouse_event(mouse_list_down[button], xx, yy, 0, 0)
 
-def mouse_click(x, y):
-    mouse_down(x, y)
-    mouse_up(x, y)
+def mouse_up_raw(x, y, button=MOUSE_LEFT):
+    xx, yy = x + gvars.genshin_window_rect[0], y + gvars.genshin_window_rect[1]
+    win32api.mouse_event(mouse_list_up[button], xx, yy, 0, 0)
 
+def mouse_click_raw(x, y, button=MOUSE_LEFT):
+    mouse_down_raw(x, y, button)
+    mouse_up_raw(x, y, button)
 
 def match_img(img, target, type=cv2.TM_CCOEFF):
     h, w = target.shape[:2]
@@ -89,7 +117,7 @@ def match_img(img, target, type=cv2.TM_CCOEFF):
         return (
             *min_loc,
             min_loc[0] + w,
-            max_loc[1] + h,
+            min_loc[1] + h,
             min_loc[0] + w // 2,
             min_loc[1] + h // 2,
         )

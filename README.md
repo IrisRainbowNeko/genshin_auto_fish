@@ -53,6 +53,21 @@ python setup.py develop
 下载预训练[权重](https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights) (.pth文件),[yolox_tiny.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth)
 下载后将权重文件放在 <font color=#66CCFF>**工程目录/weights**</font> 下
 
+# 运行钓鱼AI
+原神需要以1080x1920的分辨率运行，分辨率高的屏幕可以开窗口模式。
+
+命令行窗口一定要以<font color=#66CCFF>**管理员权限**</font>启动
+
+显卡加速
+```shell
+python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
+```
+cpu运行
+```shell
+python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device cpu
+```
+运行后出现**init ok**后按r键开始钓鱼，原神需要全屏。出于性能考虑检测框不会实时显示，处理运算后台进行。
+
 # YOLOX训练工作流程
 <**只用来钓鱼不需要训练，直接用预训练权重就可以**>
 
@@ -83,16 +98,3 @@ python train_sim.py
 ```shell
 python train.py
 ```
-
-# 运行钓鱼AI
-命令行窗口一定要以<font color=#66CCFF>**管理员权限**</font>启动
-
-显卡加速
-```shell
-python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
-```
-cpu运行
-```shell
-python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device cpu
-```
-运行后出现**init ok**后按r键开始钓鱼，原神需要全屏。出于性能考虑检测框不会实时显示，处理运算后台进行。

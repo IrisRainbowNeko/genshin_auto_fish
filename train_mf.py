@@ -1,23 +1,14 @@
-#!/usr/bin/env python3
-# -*- coding:utf-8 -*-
-# Copyright (c) Megvii, Inc. and its affiliates.
-
+from fisher.agent import DQN
+from fisher.models import FishNet, MoveFishNet
+from fisher.environment import *
+import torch
 import argparse
 import os
-import time
-
-from loguru import logger
-
-import torch
 import keyboard
 import winsound
-
-from yolox.exp import get_exp
-from yolox.utils import fuse_model, get_model_info
-
-from fisher.environment import *
+from loguru import logger
 from fisher.predictor import *
-from fisher.models import FishNet
+from yolox.exp import get_exp
 
 def make_parser():
     parser = argparse.ArgumentParser("YOLOX Demo!")
@@ -74,14 +65,16 @@ def make_parser():
     )
 
     # DQN args
-    parser.add_argument('--n_states', default=3, type=int)
-    parser.add_argument('--n_actions', default=2, type=int)
-    parser.add_argument('--step_tick', default=12, type=int)
-    parser.add_argument('--model_dir', default='./weights/fish_genshin_net.pth', type=str)
+    parser.add_argument('--batch_size', default=32, type=int)
+    parser.add_argument('--n_states', default=8, type=int)
+    parser.add_argument('--n_actions', default=3, type=int)
+    parser.add_argument('--n_episode', default=400, type=int)
+    parser.add_argument('--save_dir', default='./output', type=str)
+    parser.add_argument('--resume', default=None, type=str)
 
     return parser
 
-def main(exp, args):
+def get_predictor(exp, args):
     if not args.experiment_name:
         args.experiment_name = exp.exp_name
 
@@ -98,7 +91,6 @@ def main(exp, args):
         exp.test_size = (args.tsize, args.tsize)
 
     model = exp.get_model()
-    logger.info("Model Summary: {}".format(get_model_info(model, exp.test_size)))
 
     if args.device == "gpu":
         model.cuda()
@@ -117,10 +109,6 @@ def main(exp, args):
         model.load_state_dict(ckpt["model"])
         logger.info("loaded checkpoint done.")
 
-    if args.fuse:
-        logger.info("\tFusing model...")
-        model = fuse_model(model)
-
     if args.trt:
         assert not args.fuse, "TensorRT model is not support model fusing!"
         if args.ckpt is None:
@@ -137,79 +125,54 @@ def main(exp, args):
         trt_file = None
         decoder = None
 
-    predictor = Predictor(model, exp, FISH_CLASSES, trt_file, decoder, args.device, args.fp16, args.legacy)
+    return Predictor(model, exp, FISH_CLASSES, trt_file, decoder, args.device, args.fp16, args.legacy)
 
-    agent = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
-    agent.load_state_dict(torch.load(args.model_dir))
-    agent.eval()
+args = make_parser().parse_args()
+exp = get_exp(args.exp_file, args.name)
 
-    print('INIT OK')
-    while True:
-        print('Waiting for "r" to perform fishing')
+predictor = get_predictor(exp, args)
+
+if not os.path.exists(args.save_dir):
+    os.makedirs(args.save_dir)
+
+net = MoveFishNet(in_ch=args.n_states, out_ch=args.n_actions)
+if args.resume:
+    net.load_state_dict(torch.load(args.resume))
+
+agent = DQN(net, args.batch_size, args.n_states, args.n_actions, memory_capacity=1000, reg=True)
+env = FishMove(predictor)
+
+#python train_mf.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
+if __name__ == '__main__':
+    # Start training
+    print("\nCollecting experience...")
+    net.train()
+    for i_episode in range(args.n_episode):
         winsound.Beep(500, 500)
         keyboard.wait('r')
-        winsound.Beep(500, 500)
-        if args.demo == "image":
-            start_fishing(predictor, agent)
+        # play 400 episodes of cartpole game
+        s = env.reset()
+        ep_r = 0
+        while True:
+            # take action based on the current state
+            a = agent.choose_action(s)
+            # obtain the reward and next state and some other information
+            s_, r, done = env.step(a)
 
-def start_fishing(predictor, agent, bite_timeout=45):
-    ff = FishFind(predictor)
-    env = Fishing(delay=0.1, max_step=10000, show_det=True)
+            # store the transitions of states
+            agent.store_transition(s, a, r, s_, int(done))
 
-    do_fish_count = 0
-    while True:
-        continue_flag = False
-        if do_fish_count > 5:
-            winsound.Beep(500, 1000)
-            time.sleep(0.5)
-            winsound.Beep(500, 1000)
-            time.sleep(0.5)
-            winsound.Beep(500, 1000)
-            do_fish_count = 0
-            break
-        result: bool = ff.do_fish()
+            ep_r += r
+            # if the experience repaly buffer is filled, DQN begins to learn or update
+            # its parameters.
+            if agent.memory_counter > agent.memory_capacity:
+                agent.train_step()
+                if done:
+                    print('Ep: ', i_episode, ' |', 'Ep_r: ', round(ep_r, 2))
 
-        # continue if no fish found
-        if not result:
-            do_fish_count += 1
-            continue
-
-        do_fish_count = 0
-        winsound.Beep(700, 500)
-        times=0
-        while result is True:
-            if env.is_bite():
-                break
-            time.sleep(0.5)
-            times+=1
-            if times>bite_timeout and not(env.is_bite()):
-                if env.is_fishing():
-                    env.drag()
-                time.sleep(3)
-                times=0
-                continue_flag = True
-                break
-
-        if continue_flag == True:
-            continue
-
-        winsound.Beep(900, 500)
-        env.drag()
-        time.sleep(1)
-
-        state = env.reset()
-        for i in range(env.max_step):
-            state = torch.FloatTensor(state).unsqueeze(0)
-            action = agent(state)
-            action = torch.argmax(action, dim=1).numpy()
-            state, reward, done = env.step(action)
             if done:
+                # if game is over, then skip the while loop.
                 break
-        time.sleep(3)
-
-#python fishing.py image -f yolox/exp/yolox_tiny_fish.py -c weights/best_tiny3.pth --conf 0.25 --nms 0.45 --tsize 640 --device gpu
-if __name__ == "__main__":
-    args = make_parser().parse_args()
-    exp = get_exp(args.exp_file, args.name)
-
-    main(exp, args)
+            # use next state to update the current state.
+            s = s_
+        torch.save(net.state_dict(), os.path.join(args.save_dir, f'fish_move_net_{i_episode}.pth'))

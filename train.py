@@ -14,7 +14,7 @@ parser.add_argument('--n_actions', default=2, type=int)
 parser.add_argument('--step_tick', default=12, type=int)
 parser.add_argument('--n_episode', default=400, type=int)
 parser.add_argument('--save_dir', default='./output', type=str)
-parser.add_argument('--resume', default='./output/fish_sim_net.pth', type=str)
+parser.add_argument('--resume', default='./weights/fish_sim_net_399.pth', type=str)
 args = parser.parse_args()
 
 if not os.path.exists(args.save_dir):
@@ -47,7 +47,7 @@ if __name__ == '__main__':
             s_, r, done = env.step(a)
 
             # store the transitions of states
-            agent.store_transition(s, a, r, s_)
+            agent.store_transition(s, a, r, s_, int(done))
 
             ep_r += r
             # if the experience repaly buffer is filled, DQN begins to learn or update

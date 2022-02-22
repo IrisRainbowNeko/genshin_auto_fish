@@ -44,7 +44,7 @@ if __name__ == '__main__':
             s_, r, done = env.step(a)
 
             # store the transitions of states
-            agent.store_transition(s, a, r, s_)
+            agent.store_transition(s, a, r, s_, int(done))
 
             ep_r += r
             # if the experience repaly buffer is filled, DQN begins to learn or update

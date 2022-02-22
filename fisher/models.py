@@ -11,6 +11,18 @@ class FishNet(nn.Sequential):
         super(FishNet, self).__init__(*layers)
         self.apply(weight_init)
 
+class MoveFishNet(nn.Sequential):
+    def __init__(self, in_ch, out_ch):
+        layers=[
+            nn.Linear(in_ch, 32),
+            nn.LeakyReLU(),
+            nn.Linear(32, 32),
+            nn.LeakyReLU(),
+            nn.Linear(32, out_ch)
+        ]
+        super(MoveFishNet, self).__init__(*layers)
+        self.apply(weight_init)
+
 def weight_init(m):
     if isinstance(m, nn.Linear):
         nn.init.normal_(m.weight, 0, 0.1)

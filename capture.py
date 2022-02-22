@@ -1,6 +1,6 @@
 import time
+from utils import cap
 
-import pyautogui
 import keyboard
 import winsound
 
@@ -14,7 +14,7 @@ while True:
 print('ok')
 keyboard.wait('t')
 for i in range(56,56+20):
-    img = pyautogui.screenshot()
+    img = cap()
     img.save(f'fish_dataset/{i}.png')
     time.sleep(0.5)
 winsound.Beep(500, 500)

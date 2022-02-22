@@ -1,12 +1,79 @@
 import numpy as np
+import torch
+
 from utils import *
 import cv2
-import pyautogui
 import time
 from copy import deepcopy
 from collections import Counter
 import traceback
 import os
+
+class FishMove:
+    def __init__(self, predictor, fish_type='jia long', show_det=True):
+        self.predictor = predictor
+        self.fish_type = fish_type
+        self.show_det=show_det
+        self.bite = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
+        os.makedirs('img_tmp/', exist_ok=True)
+
+    def reset(self):
+        mouse_down(960, 540)
+        time.sleep(2)
+
+        self.start_time=time.time()
+        self.throw=False
+
+        return self.get_state()
+
+    def is_bite(self):
+        img = cap(region=[1595, 955, 74, 74],fmt='RGB')
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        edge_output = cv2.Canny(gray, 50, 150)
+        return psnr(self.bite, edge_output)>10
+
+    def do_action(self, action):
+        if self.throw:
+            return
+        if action[2]>0.5:
+            mouse_up(960, 540)
+            self.throw=True
+        else:
+            mouse_move(50*action[0], 50*action[1])
+
+    def step(self, action):
+        self.do_action(action)
+
+        done = time.time() - self.start_time >= 20
+        if self.throw:
+            while not self.is_bite():
+                if time.time() - self.start_time >= 20:
+                    break
+                time.sleep(0.2)
+            done=True
+
+        reward = max(20 - (time.time() - self.start_time), 0) * 5 if done else 0
+        return torch.zeros(8, dtype=float) if self.throw else self.get_state(), reward, done
+
+    def get_state(self):
+        while True:
+            obj_list, outputs, img_info = self.predictor.image_det(cap(), with_info=True)
+            rod_info = sorted(list(filter(lambda x: x[0] == 'rod', obj_list)), key=lambda x: x[1], reverse=True)
+            if len(rod_info) <= 0:
+                mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
+                continue
+            rod_info = rod_info[0]
+            rod_cx = (rod_info[2][0] + rod_info[2][2]) / 2
+            rod_cy = (rod_info[2][1] + rod_info[2][3]) / 2
+
+            fish_list = list(filter(lambda x: x[0] == self.fish_type, obj_list))
+            if len(fish_list) <= 0:
+                mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
+                continue
+            fish_info = min(fish_list, key=lambda x: distance((x[2][0] + x[2][2]) / 2, (x[2][1] + x[2][3]) / 2, rod_cx, rod_cy))
+            break
+
+        return torch.tensor(rod_info[2] + fish_info[2])
 
 class FishFind:
     def __init__(self, predictor, show_det=True):
@@ -17,6 +84,7 @@ class FishFind:
             cv2.imread('./imgs/food_bug.png'),
             cv2.imread('./imgs/food_fy.png'),
         ]
+        #self.food_imgs = [cv2.cvtColor(x, cv2.COLOR_BGR2RGB) for x in self.food_imgs]
         self.ff_dict={'hua jiang':0, 'ji yu':1, 'die yu':2, 'jia long':3, 'pao yu':3}
         self.dist_dict={'hua jiang':130, 'ji yu':80, 'die yu':80, 'jia long':80, 'pao yu':80}
         self.food_rgn=[580,400,740,220]
@@ -90,12 +158,13 @@ class FishFind:
         mouse_up(960, 540)
 
     def select_food(self, fish_type):
-        pyautogui.click(1650, 790, button=pyautogui.SECONDARY)
+        mouse_click(1650, 790, button=MOUSE_RIGHT)
         time.sleep(0.5)
-        bbox_food = match_img(cap(self.food_rgn, fmt='RGB'), self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_SQDIFF_NORMED)
-        pyautogui.click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
+        img=cap(self.food_rgn, fmt='RGB')
+        bbox_food = match_img(img, self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCOEFF)
+        mouse_click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
         time.sleep(0.5)
-        pyautogui.click(1183, 756)
+        mouse_click(1183, 756)
 
     def do_fish(self, fish_init=True) -> bool:
         if fish_init:
@@ -120,6 +189,12 @@ class Fishing:
         self.im_bar = cv2.imread('./imgs/bar2.png')
         self.bite = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
         self.fishing = cv2.imread('./imgs/fishing.png', cv2.IMREAD_GRAYSCALE)
+        self.exit = cv2.imread('./imgs/exit.png')
+
+        # 根据退出标志定位画面范围
+        exit_pos = match_img(cap_raw(), self.exit)
+        gvars.genshin_window_rect_img = (exit_pos[0] - 32, exit_pos[1] - 19, DEFAULT_MONITOR_WIDTH, DEFAULT_MONITOR_HEIGHT)
+
         self.std_color=np.array([192,255,255])
         self.r_ring=21
         self.delay=delay
@@ -131,7 +206,7 @@ class Fishing:
 
     def is_fishing(self):
         img = cap(region=[1595, 955, 74, 74],fmt='RGB')
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         edge_output = cv2.Canny(gray, 50, 150)
         return psnr(self.fishing, edge_output)>10
 
@@ -148,7 +223,7 @@ class Fishing:
         return self.get_state()
 
     def drag(self):
-        mouse_click(1630,995)
+        mouse_click_raw(1630,995)
 
     def do_action(self, action):
         if action==1:
@@ -167,7 +242,7 @@ class Fishing:
         return bbox_bar[1]-9, bbox_bar
 
     def is_bite(self):
-        img = cap(region=[1595, 955, 74, 74],fmt='RGB')
+        img = cap(region=[1595, 955, 74, 74],fmt='BGR')
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         edge_output = cv2.Canny(gray, 50, 150)
         return psnr(self.bite, edge_output)>10

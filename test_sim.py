@@ -9,12 +9,12 @@ parser = argparse.ArgumentParser(description='Test Genshin finsing with DQN')
 parser.add_argument('--n_states', default=3, type=int)
 parser.add_argument('--n_actions', default=2, type=int)
 parser.add_argument('--step_tick', default=12, type=int)
-parser.add_argument('--model_dir', default='./output/fish_net_399.pth', type=str)
+parser.add_argument('--model_dir', default='./output/fish_sim_net_399.pth', type=str)
 args = parser.parse_args()
 
 if __name__ == '__main__':
     writer = FFMpegWriter(fps=60)
-    render = PltRender(call_back=lambda: writer.grab_frame())
+    render = PltRender(call_back=writer.grab_frame)
 
     net = FishNet(in_ch=args.n_states, out_ch=args.n_actions)
     env = Fishing_sim(step_tick=args.step_tick, drawer=render, stop_tick=10000)
