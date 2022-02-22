@@ -159,7 +159,7 @@ def start_fishing(predictor, agent, bite_timeout=45):
     do_fish_count = 0
     while True:
         continue_flag = False
-        if do_fish_count > 5:
+        if do_fish_count > 4:
             winsound.Beep(500, 1000)
             time.sleep(0.5)
             winsound.Beep(500, 1000)

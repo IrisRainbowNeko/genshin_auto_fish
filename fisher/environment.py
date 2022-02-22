@@ -161,7 +161,7 @@ class FishFind:
         mouse_click(1650, 790, button=MOUSE_RIGHT)
         time.sleep(0.5)
         img=cap(self.food_rgn, fmt='RGB')
-        bbox_food = match_img(img, self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_CCOEFF)
+        bbox_food = match_img(img, self.food_imgs[self.ff_dict[fish_type]], type=cv2.TM_SQDIFF_NORMED)
         mouse_click(bbox_food[4]+self.food_rgn[0], bbox_food[5]+self.food_rgn[1])
         time.sleep(0.5)
         mouse_click(1183, 756)
