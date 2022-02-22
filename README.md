@@ -1,4 +1,6 @@
 # Introduction
+**现已支持不同分辨率屏幕**
+
 原神自动钓鱼AI由[YOLOX](https://github.com/Megvii-BaseDetection/YOLOX), DQN两部分模型组成。使用迁移学习，半监督学习进行训练。
 模型也包含一些使用opencv等传统数字图像处理方法实现的不可学习部分。
 
