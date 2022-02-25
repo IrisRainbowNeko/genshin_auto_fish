@@ -13,7 +13,7 @@
 
 打开anaconda prompt(命令行界面)，创建新python环境并激活:
 ```shell
-conda create -n ysfish python=3.6
+conda create -n ysfish python=3.8
 conda activate ysfish
 ```
 推荐安装<font color=#66CCFF>**python3.7或以下**</font>版本。
