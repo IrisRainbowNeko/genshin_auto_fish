@@ -16,7 +16,7 @@
 conda create -n ysfish python=3.8
 conda activate ysfish
 ```
-推荐安装<font color=#66CCFF>**python3.7或以下**</font>版本。
+推荐安装<font color=#66CCFF>**python3.8或以下**</font>版本。
 
 ## 下载工程代码
 使用git下载，[git安装教程](https://www.cnblogs.com/xiaoliu66/p/9404963.html):
