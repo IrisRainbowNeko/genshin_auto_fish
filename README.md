@@ -13,10 +13,10 @@
 
 打开anaconda prompt(命令行界面)，创建新python环境并激活:
 ```shell
-conda create -n ysfish python=3.6
+conda create -n ysfish python=3.8
 conda activate ysfish
 ```
-推荐安装<font color=#66CCFF>**python3.7或以下**</font>版本。
+推荐安装<font color=#66CCFF>**python3.8或以下**</font>版本。
 
 ## 下载工程代码
 使用git下载，[git安装教程](https://www.cnblogs.com/xiaoliu66/p/9404963.html):
@@ -40,8 +40,9 @@ python requirements.py
 pip install -U pip
 python requirements.py --cuda [cuda版本]
 #例如安装的CUDA11.x
-python requirements.py --cuda 110
-python requirements.py --cuda 110 --proxy http://127.0.0.1:1080 # use proxy to speed up
+python requirements.py --cuda 111
+#或者使用代理加速
+python requirements.py --cuda 111 --proxy http://127.0.0.1:1080 # use proxy to speed up
 ```
 可能会有Time out之类的报错，多试几遍，github太卡。
 
