@@ -48,7 +48,7 @@ def main():
     keyboard
     Pillow
     pymouse
-    numpy==1.19.5
+    numpy>=1.21.1
     torch==1.8.2+{"cpu" if args.cuda is None else "cu" + args.cuda} -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
     torchvision==0.9.2+{"cpu" if args.cuda is None else "cu" + args.cuda} --no-deps -f https://download.pytorch.org/whl/lts/1.8/torch_lts.html
     thop --no-deps
