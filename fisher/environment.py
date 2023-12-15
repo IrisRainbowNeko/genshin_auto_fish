@@ -13,67 +13,74 @@ class FishMove:
     def __init__(self, predictor, fish_type='jia long', show_det=True):
         self.predictor = predictor
         self.fish_type = fish_type
-        self.show_det=show_det
-        self.bite = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
+        self.show_det = show_det
+        self.bite_image = cv2.imread('./imgs/bite.png', cv2.IMREAD_GRAYSCALE)
         os.makedirs('img_tmp/', exist_ok=True)
+        self.start_time = None
+        self.throw = False
 
     def reset(self):
         mouse_down(960, 540)
         time.sleep(2)
+        self.start_time = time.time()
+        self.throw = False
+        return self._get_state()
 
-        self.start_time=time.time()
-        self.throw=False
-
-        return self.get_state()
-
-    def is_bite(self):
-        img = cap(region=[1595, 955, 74, 74],fmt='RGB')
+    def _is_bite(self):
+        img = cap(region=[1595, 955, 74, 74], fmt='RGB')
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
         edge_output = cv2.Canny(gray, 50, 150)
-        return psnr(self.bite, edge_output)>10
+        return psnr(self.bite_image, edge_output) > 10
 
-    def do_action(self, action):
+    def _do_action(self, action):
         if self.throw:
             return
-        if action[2]>0.5:
+        if action[2] > 0.5:
             mouse_up(960, 540)
-            self.throw=True
+            self.throw = True
         else:
-            mouse_move(50*action[0], 50*action[1])
+            mouse_move(50 * action[0], 50 * action[1])
 
     def step(self, action):
-        self.do_action(action)
-
+        self._do_action(action)
         done = time.time() - self.start_time >= 20
         if self.throw:
-            while not self.is_bite():
+            while not self._is_bite():
                 if time.time() - self.start_time >= 20:
                     break
                 time.sleep(0.2)
-            done=True
+            done = True
 
         reward = max(20 - (time.time() - self.start_time), 0) * 5 if done else 0
-        return torch.zeros(8, dtype=float) if self.throw else self.get_state(), reward, done
+        return torch.zeros(8, dtype=float) if self.throw else self._get_state(), reward, done
 
-    def get_state(self):
+    def _get_state(self):
         while True:
             obj_list, outputs, img_info = self.predictor.image_det(cap(), with_info=True)
-            rod_info = sorted(list(filter(lambda x: x[0] == 'rod', obj_list)), key=lambda x: x[1], reverse=True)
-            if len(rod_info) <= 0:
-                mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
-                continue
-            rod_info = rod_info[0]
-            rod_cx = (rod_info[2][0] + rod_info[2][2]) / 2
-            rod_cy = (rod_info[2][1] + rod_info[2][3]) / 2
-
-            fish_list = list(filter(lambda x: x[0] == self.fish_type, obj_list))
-            if len(fish_list) <= 0:
-                mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
-                continue
-            fish_info = min(fish_list, key=lambda x: distance((x[2][0] + x[2][2]) / 2, (x[2][1] + x[2][3]) / 2, rod_cx, rod_cy))
-            break
+            rod_info = self._get_rod_info(obj_list)
+            fish_info = self._get_fish_info(obj_list, rod_info)
+            if rod_info and fish_info:
+                break
 
         return torch.tensor(rod_info[2] + fish_info[2])
+
+    def _get_rod_info(self, obj_list):
+        rod_list = [x for x in obj_list if x[0] == 'rod']
+        if rod_list:
+            return sorted(rod_list, key=lambda x: x[1], reverse=True)[0]
+        else:
+            mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
+            return None
+
+    def _get_fish_info(self, obj_list, rod_info):
+        fish_list = [x for x in obj_list if x[0] == self.fish_type]
+        if fish_list and rod_info:
+            rod_cx = (rod_info[2][0] + rod_info[2][2]) / 2
+            rod_cy = (rod_info[2][1] + rod_info[2][3]) / 2
+            return min(fish_list, key=lambda x: distance((x[2][0] + x[2][2]) / 2, (x[2][1] + x[2][3]) / 2, rod_cx, rod_cy))
+        else:
+            mouse_move(np.random.randint(-50, 50), np.random.randint(-50, 50))
+            return None
 
 class FishFind:
     def __init__(self, predictor, show_det=True):
