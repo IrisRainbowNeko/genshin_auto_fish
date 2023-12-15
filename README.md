@@ -53,7 +53,12 @@ python setup.py develop
 ```
 
 ## 预训练权重下载
-下载预训练[权重](https://github.com/7eu7d7/genshin_auto_fish/releases/tag/weights) (.pth文件),[yolox_tiny.pth](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth)
+
+- [`best_tiny3.pth`](https://github.com/7eu7d7/genshin_auto_fish/releases/download/weights/best_tiny3.pth)
+- [`fish_genshin_net.pth`](https://github.com/7eu7d7/genshin_auto_fish/releases/download/weights/fish_genshin_net.pth)
+- [`fish_sim_net.pth`](https://github.com/7eu7d7/genshin_auto_fish/releases/download/weights/fish_sim_net.pth)
+- [`yolox_tiny.pth`](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth)
+
 下载后将权重文件放在 <font color=#66CCFF>**工程目录/weights**</font> 下
 
 # 运行钓鱼AI
